@@ -14,6 +14,8 @@ model_name_map = {
     'bert-base-finnish-cased': 'FinBERT cased',
     'multi_cased_L-12_H-768_A-12': 'M-BERT cased',
     'multilingual_L-12_H-768_A-12': 'M-BERT uncased',
+    'biBERT70': 'bilingual BERT 70k',
+    'biBERT80': 'bilingual BERT 80k',
 }
 
 result_re = re.compile(r'^\S+-RESULT\s(.*)\s(?:eval_)?accuracy\s(\S+?)\%?(\s|$)')
@@ -77,6 +79,27 @@ def read_logs(filenames, clean=True, regex=None):
         print('{} files without results'.format(len(missing)))
     return results
 
+def batch_read_logs(filename, clean=True, regex=None):
+    '''
+    Variation of `read_log` for when results
+    are already collected in a tsv file
+    '''
+    if regex is None:
+        regex = result_re
+    results = defaultdict(list)
+    with open(filename) as f:
+        for l in f:
+            l = l.rstrip('\n')
+            m = regex.match(l)
+            if not m:
+                continue
+            else:
+                params = m.group(1)
+                result = float(m.group(2))
+                if clean:
+                    params = clean_params(params)
+                results[params].append(result)
+    return results
 
 def main(argv):
     if len(argv) < 2:

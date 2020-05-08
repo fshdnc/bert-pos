@@ -8,10 +8,12 @@ import numpy as np
 
 from itertools import groupby
 from summarize import read_logs, parse_params, data_and_model
+from summarize import batch_read_logs
 
 
 def main(argv):
-    results = read_logs(argv[1:], clean=False)
+#    results = read_logs(argv[1:], clean=False)
+    results = batch_read_logs(argv[1], clean=False)
     means = [(p, np.mean(v)) for p, v in results.items()]
     means.sort(key=lambda i: data_and_model(i[0]))
     for _, group in groupby(means, key=lambda i: data_and_model(i[0])):

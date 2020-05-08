@@ -360,7 +360,7 @@ def main(argv):
         sample_weight=train_in_mask,
         batch_size=args.train_batch_size,
         epochs=args.num_train_epochs,
-        verbose=1,
+        verbose=2,
         callbacks=callbacks
     )
     train_end = datetime.now()
@@ -376,7 +376,7 @@ def main(argv):
         pred_segments = np.array([e.segment_ids for e in pred_data])
         pred = model.predict(
             [pred_input, pred_segments],
-            verbose=1
+            verbose=2
         )
         pred_tokens = [[t for t, _ in s] for s in pred_sents]
         pred_head_flags = np.array([e.head_flags for e in pred_data])
