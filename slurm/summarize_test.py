@@ -8,7 +8,7 @@ import numpy as np
 
 from collections import defaultdict, OrderedDict
 
-from summarize import read_logs, data_and_model, parse_params
+from summarize import read_logs, data_and_model, parse_params, batch_read_logs
 
 
 model_name_map = {
@@ -26,7 +26,8 @@ def main(argv):
         print('Usage: {} LOG [LOG[...]]'.format(os.path.basename(__file__)))
         return 1
 
-    results = read_logs(argv[1:], clean=True, regex=result_re)
+    #results = read_logs(argv[1:], clean=True, regex=result_re)
+    results = batch_read_logs(argv[1], clean=True, regex=result_re)
 
     # Figure out which parameters are fixed (always have the same value)
     param_values = OrderedDict()

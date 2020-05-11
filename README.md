@@ -136,3 +136,40 @@ FinBERT uncased   TDT    98.12
 M-BERT  cased     TDT    96.97
 M-BERT  uncased   TDT    96.59
 ```
+
+## Modifications to the original repo
+In `scripts/`
+- `venv.sh` to create venv on puhti
+In `slurm/`
+- `batch-dev-pos.sh` runs more than one set of parameters for each sbatch submission, so that time is not wasted queuing
+- `batch-run-parameter-selection.sh` used for submitting jobs for `batch-dev-pos.sh`
+- `print.sh` prints a file for all the parameters to be searched. One line per job. Used for `batch-run-parameter-selection.sh`
+- function `batch_read_logs` added in `summarize.py` for processing files where all the results have been collected in one file
+- `select_params.py` changed to using `batch_read_logs` instead of `read_logs`
+- `summarize_test.py` changed to using `batch_read_logs` instead of `read_logs`
+
+## Workflow after the modifications
+1. Parameter search on the dev set
+- use `print.sh` to print out all the combinations
+- use `batch-dev-pos.sh` and `batch-run-parameter-selection.sh` to do the experiments
+2. Collecting results
+- grab for 'DEV-RESULT' and 'accuracy' in the stdout logging files for the results, collect the results into a tsv file `dev-results.tsv`
+3. Use `select_params.py` to select the parameters for the test set
+- `python3 slurm/select_params.py slurm/dev-results.tsv | cut -f 1-12 > slurm/selected-params.tsv`
+4. Run the selected parameters on the test set
+- use `batch-test-pos.sh` and `batch-run-selected-params.sh`
+5. Organizing the results
+- grab for 'TEST-RESULT': `grep -h 'TEST-RESULT' logs/*.out > delme.test-result`
+- `cat test-result.delme| grep biBERT70 > delme.70`
+- `python3 slurm/summarize_test.py delme.70`
+- `rm delme.*`
+
+## Note to self for running on puhti
+batch size 20, 4 epochs out of memory (requires 6GB of memory)
+
+Check for out of memory errors
+`less logs/batch-*.err | grep -i 'status: out of'`
+
+Parameter search on the dev set
+Batching the jobs according to the following parameters
+{16,20}{biBERT70,biBERT80}{[23],4}

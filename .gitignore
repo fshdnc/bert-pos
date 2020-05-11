@@ -1,2 +1,6 @@
 *~
 slurm/jobs/
+README-li.md
+output/
+logs/
+.gitignore
